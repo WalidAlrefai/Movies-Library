@@ -6,12 +6,15 @@
 
 ## WRRC
 ![](./WRRC.png)
+![](./WRRC2.jpg)
 
 ## Overview
 An application that contains libraries for viewing movies
 
 ## Getting Started
-<!-- What are the steps that a user must take in order to build this app on their own machine and get it running? -->
+1- make constructor and import requierd framework
+2- make EndPoint and get data from 3rd API
+3- Show Data with postman program
 
 ## Project Features
 <!-- What are the features included in you app -->
