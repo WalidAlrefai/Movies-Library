@@ -26,11 +26,11 @@ app.get('/favorite', welcomeToFavoriteHandler);
 app.get("/trending", getMoviesHandler);
 
 app.get("/search", searchMoviesHandler)
-
+app.get("/collection",getCollectionHandler)
 app.use(errorHandler);
 
 app.use("*", notFountHandler);
-app.get("/collection",getCollectionHandler)
+
 
 
 function Movies(id,title,release_date,poster_path,overview){
@@ -49,20 +49,24 @@ function Collection(id,name,overview,poster_path,backdrop_path){
 }
 
 function getMoviesHandler(req,res){
-    axios.get(`https://api.themoviedb.org/3/movie/634649?api_key=${APIKEY}`).then(value => {
+     let movieArr=[] 
+    axios.get(`https://api.themoviedb.org/3/trending/all/week?api_key=${APIKEY}`).then(value => {
         
-            let movieOne = new Movies (value.data.id,value.data.title,value.data.overview,value.data.poster_path,value.data.backdrop_path);            
-         return res.status(200).json(movieOne);
+        value.data.results.forEach(value=>{
+            let movieOne = new Movies (value.id,value.title,value.overview,value.poster_path,value.backdrop_path);
+            movieArr.push(movieOne)
+            })
+         return res.status(200).json(movieArr);
     }).catch(error => {
         errorHandler(error, req,res);
     
     });
 };
-// the link for api link can't work with me 
-// https://api.themoviedb.org/3/collection/575165?api_key=e846edf8214daa93100e86adb8e417b9&language=en-US
+
+
 function getCollectionHandler(req,res){
     axios.get(`https://api.themoviedb.org/3/collection/575165?api_key=${APIKEY}`).then(value => {
-        
+                
             let collectionOne = new Collection(value.data.id,value.data.name,value.data.overview,value.data.poster_path,value.data.backdrop_path);            
          return res.status(200).json(collectionOne);
     }).catch(error => {
