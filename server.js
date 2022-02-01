@@ -11,24 +11,22 @@ const axios = require("axios");
 const dotenv = require('dotenv');
 
 dotenv.config();
-
+const pg = require("pg")
+const DATABASE_URL = process.env.DATABASE_URL;
+const client = new pg.Client(DATABASE_URL);
+app.use(express.json());
 const APIKEY = process.env.APIKEY;
 const PORT = process.env.PORT;
 
 
-app.listen(PORT, () => {
-    console.log(`Listen to ${PORT} `);
-
-});
 app.get('/', moviesHandler);
 app.get('/favorite', welcomeToFavoriteHandler);
-
 app.get("/trending", getMoviesHandler);
-
-app.get("/search", searchMoviesHandler)
-app.get("/collection",getCollectionHandler)
+app.get("/search", searchMoviesHandler);
+app.get("/collection",getCollectionHandler);
+app.post("/addFavMovies", addFavMovieHandler);
+app.get("/getAllFavMovies", getAllFavMovieHandler);
 app.use(errorHandler);
-
 app.use("*", notFountHandler);
 
 
@@ -94,6 +92,31 @@ function searchMoviesHandler(req, res){
 
 }
 
+function addFavMovieHandler(req,res){
+    let movie = req.body
+
+    const sql = `INSERT INTO favMovies(title, release_date, poster_path, overview,comments) VALUES($1, $2, $3, $4, $5) RETURNING * ;`
+   
+
+    let values = [movie.title, movie.release_date, movie.poster_path, movie.overview,movie.comments]
+    
+    client.query(sql, values).then((data) => {
+       
+        return res.status(201).json(data.rows);
+    }).catch(error => {
+        errorHandler(error, req, res);
+    })
+};
+
+function getAllFavMovieHandler(req, res){
+    const sql = `SELECT * FROM favMovies`;
+    client.query(sql).then(data => {
+        return res.status(200).json(data.rows);
+    }).catch(error => {
+        errorHandler(error, req,res);
+    })
+}
+
 
 function welcomeToFavoriteHandler(req, res){
     return res.status(200).send("Welcome to Favorite Page");
@@ -116,3 +139,10 @@ function errorHandler(error, req, res){
         message : error
     }
 }
+
+client.connect().then(() => {
+    
+    app.listen(PORT, () => {
+        console.log(`I am using port ${PORT}`);
+    });
+});
