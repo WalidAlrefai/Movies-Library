@@ -9,12 +9,12 @@ const jsonData = require("./Movie Data/data.json");
 const axios = require("axios");
 
 const dotenv = require('dotenv');
-
+app.use(express.json());
 dotenv.config();
+
 const pg = require("pg")
 const DATABASE_URL = process.env.DATABASE_URL;
 const client = new pg.Client(DATABASE_URL);
-app.use(express.json());
 const APIKEY = process.env.APIKEY;
 const PORT = process.env.PORT;
 
@@ -26,6 +26,11 @@ app.get("/search", searchMoviesHandler);
 app.get("/collection",getCollectionHandler);
 app.post("/addFavMovies", addFavMovieHandler);
 app.get("/getAllFavMovies", getAllFavMovieHandler);
+app.get("/getFavMovie/:id", getFavMovieHandler);
+app.put("/updateFavMovies/:id", updateFavMovieHandler);
+app.delete("/deleteFavMovie/:id", deleteFavMovieHandler)
+
+
 app.use(errorHandler);
 app.use("*", notFountHandler);
 
@@ -114,6 +119,48 @@ function getAllFavMovieHandler(req, res){
         return res.status(200).json(data.rows);
     }).catch(error => {
         errorHandler(error, req,res);
+    })
+}
+
+function getFavMovieHandler(req,res){
+    console.log(req.params);
+    const id = req.params.id;
+    const sql = `SELECT * FROM favMovies WHERE id=${id};`
+
+    client.query(sql).then(data => {
+        
+        res.status(200).json(data.rows);
+    }).catch(error => {
+        console.log(error);
+        errorHandler(error, req, res);
+    })
+}
+
+
+function updateFavMovieHandler(req, res){
+    const id = req.params.id;
+    const movie = req.body;
+    console.log(res.body)
+
+    const sql = `UPDATE favMovies SET  comments=$1 WHERE id=${id} RETURNING *;`
+    const values = [ movie.comments];
+
+    client.query(sql,values).then(data => {
+        return res.status(200).json(data.rows);
+    }).catch(error => {
+        errorHandler(error, req, res);
+    })
+};
+
+function deleteFavMovieHandler(req, res){
+    const id = req.params.id;
+
+    const sql = `DELETE FROM favMovies WHERE id=${id};`
+
+    client.query(sql).then(() => {
+        return res.status(204).json([]);
+    }).catch(error => {
+        errorHandler(error, req, res);
     })
 }
 
