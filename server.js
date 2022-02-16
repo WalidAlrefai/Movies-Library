@@ -107,7 +107,7 @@ function searchMoviesHandler(req, res){
 function addFavMovieHandler(req,res){
     let movie = req.body
 
-    const sql = `INSERT INTO favMovies(title, release_date, poster_path, overview,comments) VALUES($1, $2, $3, $4, $5) RETURNING * ;`
+    const sql = `INSERT INTO fav(title, release_date, poster_path, overview,comments) VALUES($1, $2, $3, $4, $5) RETURNING * ;`
    
 
     let values = [movie.title, movie.release_date, movie.poster_path, movie.overview,movie.comments]
@@ -121,7 +121,7 @@ function addFavMovieHandler(req,res){
 };
 
 function getAllFavMovieHandler(req, res){
-    const sql = `SELECT * FROM favMovies`;
+    const sql = `SELECT * FROM fav`;
     client.query(sql).then(data => {
         return res.status(200).json(data.rows);
     }).catch(error => {
@@ -132,7 +132,7 @@ function getAllFavMovieHandler(req, res){
 function getFavMovieHandler(req,res){
     console.log(req.params);
     const id = req.params.id;
-    const sql = `SELECT * FROM favMovies WHERE id=${id};`
+    const sql = `SELECT * FROM fav WHERE id=${id};`
 
     client.query(sql).then(data => {
         
@@ -149,7 +149,7 @@ function updateFavMovieHandler(req, res){
     const movie = req.body;
     console.log(res.body)
 
-    const sql = `UPDATE favMovies SET  comments=$1 WHERE id=${id} RETURNING *;`
+    const sql = `UPDATE fav SET  comments=$1 WHERE id=${id} RETURNING *;`
     const values = [ movie.comments];
 
     client.query(sql,values).then(data => {
@@ -162,7 +162,7 @@ function updateFavMovieHandler(req, res){
 function deleteFavMovieHandler(req, res){
     const id = req.params.id;
 
-    const sql = `DELETE FROM favMovies WHERE id=${id};`
+    const sql = `DELETE FROM fav WHERE id=${id};`
 
     client.query(sql).then(() => {
         return res.status(204).json([]);
