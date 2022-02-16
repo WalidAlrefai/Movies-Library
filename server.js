@@ -11,14 +11,17 @@ const axios = require("axios");
 const dotenv = require('dotenv');
 app.use(express.json());
 dotenv.config();
-
+const DATABASE_URL = process.env.DATABASE_URL;
 const pg = require("pg")
+const cors = require('cors');
+app.use(cors());
 const client = new pg.Client({
     connectionString: process.env.DATABASE_URL,
     ssl: { rejectUnauthorized: false }
 });
-const DATABASE_URL = process.env.DATABASE_URL;
 
+
+// const client =new pg.Client(DATABASE_URL);
 const APIKEY = process.env.APIKEY;
 const PORT = process.env.PORT;
 
